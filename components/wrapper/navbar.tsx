@@ -34,8 +34,8 @@ const components: { title: string; href: string; description: string }[] = [
 export default function NavBar() {
     let userId = null;
     if (config?.auth?.enabled) {
-        const user = useAuth();
-        userId = user?.userId;
+        const { userId: clerkUserId } = useAuth();
+        userId = clerkUserId;
     }
 
     return (
