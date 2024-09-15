@@ -7,9 +7,21 @@ import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
 import { Search, MapPin, Calendar as CalendarIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 const Hero: React.FC = () => {
   const [date, setDate] = useState<Date | undefined>(new Date())
+  const [location, setLocation] = useState('')
+  const router = useRouter()
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const searchParams = new URLSearchParams({
+      location: location,
+      date: date ? date.toISOString() : ''
+    })
+    router.push(`/search-results?${searchParams.toString()}`)
+  }
 
   return (
     <section className="h-screen flex items-center justify-center bg-[url('https://images.unsplash.com/photo-1600518464441-9154a4dea21b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center">
@@ -28,11 +40,16 @@ const Hero: React.FC = () => {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="bg-white/80 backdrop-blur-md rounded-full p-2 max-w-4xl mx-auto"
         >
-          <form className="flex items-center">
+          <form onSubmit={handleSubmit} className="flex items-center">
             <div className="flex-grow flex items-center space-x-4">
               <div className="relative flex-grow">
                 <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <Input placeholder="Where do you need storage?" className="pl-10 py-6 rounded-full bg-transparent border-none" />
+                <Input 
+                  placeholder="Where do you need storage?" 
+                  className="pl-10 py-6 rounded-full bg-transparent border-none" 
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
               </div>
               <Popover>
                 <PopoverTrigger asChild>

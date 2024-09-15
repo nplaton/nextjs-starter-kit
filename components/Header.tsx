@@ -18,18 +18,20 @@ const Header: React.FC = () => {
 
   return (
     <header className={`fixed w-full z-10 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-transparent'}`}>
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="text-2xl font-bold text-primary">
-          LookLockers
-        </Link>
-        <nav className="hidden md:flex space-x-8">
-          <Link href="/list-facility" className="text-sm font-medium hover:text-primary transition-colors">List Your Facility</Link>
-          <Link href="/how-it-works" className="text-sm font-medium hover:text-primary transition-colors">How It Works</Link>
-          <Link href="/login" className="text-sm font-medium hover:text-primary transition-colors">Log in</Link>
-        </nav>
-        <Button variant="ghost" size="icon" className="md:hidden">
-          <Menu className="h-6 w-6" />
-        </Button>
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="text-2xl font-bold text-primary">
+            LookLockers
+          </Link>
+          <nav className="hidden md:flex space-x-8">
+            <Link href="/list-facility" className="text-sm font-medium hover:text-primary transition-colors">List Your Facility</Link>
+            <Link href="/how-it-works" className="text-sm font-medium hover:text-primary transition-colors">How It Works</Link>
+            <Link href="/login" className="text-sm font-medium hover:text-primary transition-colors">Log in</Link>
+          </nav>
+          <Button variant="ghost" size="icon" className="md:hidden">
+            <Menu className="h-6 w-6" />
+          </Button>
+        </div>
       </div>
     </header>
   )
