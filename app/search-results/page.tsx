@@ -7,6 +7,7 @@ import Footer from '@/components/Footer'
 import SearchBar from '@/components/SearchBar'
 import FacilityCard from '@/components/FacilityCard'
 import { Facility } from '@/types'
+import Map from '@/components/Map' // Added import for the map component
 
 const SearchResults: React.FC = () => {
   const searchParams = useSearchParams()
