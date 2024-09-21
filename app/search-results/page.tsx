@@ -109,12 +109,45 @@ const SearchResults: React.FC = () => {
   useEffect(() => {
     if (map && typeof google !== 'undefined') {
       facilities.forEach((facility) => {
-        new google.maps.Marker({
+        const minPrice = Math.min(...facility.units.map(unit => unit.price));
+        
+        const packageEmoji = '📦'; // Unicode for package emoji
+        
+        const marker = new google.maps.Marker({
           position: { lat: facility.lat, lng: facility.lng },
           map: map,
-          title: facility.name,
-        })
-      })
+          icon: {
+            url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+                <text x="20" y="20" font-family="Arial" font-size="30" text-anchor="middle" dominant-baseline="central">${packageEmoji}</text>
+              </svg>
+            `)}`,
+            scaledSize: new google.maps.Size(40, 40),
+            anchor: new google.maps.Point(20, 20),
+          },
+          label: {
+            text: `€${minPrice}`,
+            color: '#000000', // Kept as black
+            fontSize: '12px',
+            fontWeight: 'bold',
+            className: 'marker-label'
+          }
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: `
+            <div style="padding: 10px; max-width: 200px;">
+              <h3 style="font-weight: bold; margin-bottom: 5px;">${facility.name}</h3>
+              <p style="font-size: 12px; margin-bottom: 5px;">${facility.address}</p>
+              <p style="font-size: 12px;">From €${minPrice}/month</p>
+            </div>
+          `
+        });
+
+        (marker as google.maps.Marker).addListener('click', () => {
+          (infoWindow as google.maps.InfoWindow).open(map, marker as google.maps.Marker);
+        });
+      });
     }
   }, [map, facilities])
 
