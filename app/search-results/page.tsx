@@ -9,6 +9,7 @@ import FacilityCard from '@/components/FacilityCard'
 import { Facility } from '@/types'
 import Map from '@/components/Map' // Added import for the map component
 import FilterComponent from '@/components/FilterComponent' // Add this import
+import { Loader } from '@googlemaps/js-api-loader' // Add this import
 
 const SearchResults: React.FC = () => {
   const searchParams = useSearchParams()
@@ -21,6 +22,7 @@ const SearchResults: React.FC = () => {
     minSize: 0,
     maxSize: 50,
   });
+  const [isMapLoaded, setIsMapLoaded] = useState(false)
 
   useEffect(() => {
     const location = searchParams.get('location')
@@ -93,18 +95,27 @@ const SearchResults: React.FC = () => {
   }, [searchParams])
 
   useEffect(() => {
-    if (mapRef.current && !map) {
-      if (typeof google === 'undefined') {
-        console.error('Google Maps API not loaded');
-        return;
-      }
+    const loader = new Loader({
+      apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+      version: "weekly",
+    })
+
+    loader.load().then(() => {
+      setIsMapLoaded(true)
+    }).catch(e => {
+      console.error('Error loading Google Maps API:', e)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (mapRef.current && !map && isMapLoaded) {
       const newMap = new google.maps.Map(mapRef.current, {
         center: { lat: 40.4168, lng: -3.7038 }, // Centered on Madrid
         zoom: 6,
-      });
-      setMap(newMap);
+      })
+      setMap(newMap)
     }
-  }, [mapRef, map]);
+  }, [mapRef, map, isMapLoaded])
 
   useEffect(() => {
     if (map && typeof google !== 'undefined') {
@@ -195,7 +206,13 @@ const SearchResults: React.FC = () => {
             </div>
           </div>
           <div className="w-full md:w-1/2 md:pl-4">
-            <div ref={mapRef} className="w-full h-[600px] border border-gray-300 rounded-lg"></div>
+            {isMapLoaded ? (
+              <div ref={mapRef} className="w-full h-[600px] border border-gray-300 rounded-lg"></div>
+            ) : (
+              <div className="w-full h-[600px] border border-gray-300 rounded-lg flex items-center justify-center">
+                Loading map...
+              </div>
+            )}
           </div>
         </div>
       </main>
