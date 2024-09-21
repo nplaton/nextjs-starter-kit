@@ -8,12 +8,19 @@ import SearchBar from '@/components/SearchBar'
 import FacilityCard from '@/components/FacilityCard'
 import { Facility } from '@/types'
 import Map from '@/components/Map' // Added import for the map component
+import FilterComponent from '@/components/FilterComponent' // Add this import
 
 const SearchResults: React.FC = () => {
   const searchParams = useSearchParams()
   const [facilities, setFacilities] = useState<Facility[]>([])
   const mapRef = useRef<HTMLDivElement>(null)
   const [map, setMap] = useState<google.maps.Map | null>(null)
+  const [filters, setFilters] = useState({
+    minPrice: 0,
+    maxPrice: 150,
+    minSize: 0,
+    maxSize: 50,
+  });
 
   useEffect(() => {
     const location = searchParams.get('location')
@@ -73,7 +80,7 @@ const SearchResults: React.FC = () => {
       {
         id: '5',
         name: 'Trasteros Económicos Málaga',
-        address: 'Paseo del Parque 202, ' + (location || 'Málaga'),
+        address: 'Paseo del Parque 202, ' + (location || 'Mlaga'),
         rating: 4.2,
         lat: 36.7213,
         lng: -4.4214,
@@ -116,6 +123,24 @@ const SearchResults: React.FC = () => {
     console.log('Searching for:', searchTerm, 'Date:', date)
   }
 
+  const handleFilterChange = (newFilters: typeof filters) => {
+    setFilters(newFilters);
+    // Apply filters to facilities
+    const filteredFacilities = facilities.filter(facility => {
+      return facility.units.some(unit => {
+        const [width, height] = unit.size.split('x').map(Number);
+        const size = width * height;
+        return (
+          unit.price >= newFilters.minPrice &&
+          (newFilters.maxPrice === 150 ? true : unit.price <= newFilters.maxPrice) &&
+          size >= newFilters.minSize &&
+          (newFilters.maxSize === 50 ? true : size <= newFilters.maxSize)
+        );
+      });
+    });
+    setFacilities(filteredFacilities);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -125,16 +150,19 @@ const SearchResults: React.FC = () => {
           <SearchBar onSearch={handleSearch} />
           <p className="text-sm text-gray-600 mt-2 text-center">Over 1000 stores in Spain</p>
         </div>
-        <div className="flex mt-8">
-          <div className="w-1/2 pr-4">
+        <div className="sm:flex sm:space-x-4 mb-6">
+          <FilterComponent filters={filters} onFilterChange={handleFilterChange} />
+        </div>
+        <div className="flex flex-col md:flex-row mt-8">
+          <div className="w-full md:w-1/2 md:pr-4 mb-8 md:mb-0">
             <div className="grid grid-cols-1 gap-6">
               {facilities.map((facility, index) => (
                 <FacilityCard key={facility.id} facility={facility} index={index} />
               ))}
             </div>
           </div>
-          <div className="w-1/2 pl-4">
-            <div ref={mapRef} style={{ width: '100%', height: '600px', border: '1px solid #ccc' }}></div>
+          <div className="w-full md:w-1/2 md:pl-4">
+            <div ref={mapRef} className="w-full h-[600px] border border-gray-300 rounded-lg"></div>
           </div>
         </div>
       </main>
