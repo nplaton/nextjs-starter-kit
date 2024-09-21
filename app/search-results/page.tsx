@@ -24,6 +24,9 @@ const SearchResults: React.FC = () => {
   });
   const [isMapLoaded, setIsMapLoaded] = useState(false)
 
+  // Add this line to get the location from search params
+  const initialLocation = searchParams.get('location') || ''
+
   useEffect(() => {
     const location = searchParams.get('location')
     const date = searchParams.get('date')
@@ -189,9 +192,9 @@ const SearchResults: React.FC = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8 mt-20">
-        <h1 className="text-3xl font-bold mb-6">Search Results for {searchParams.get('location') || 'All Locations'}</h1>
+        {/* Removed h1 element */}
         <div className="mb-8">
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar onSearch={handleSearch} initialLocation={initialLocation} />
           <p className="text-sm text-gray-600 mt-2 text-center">Over 1000 stores in Spain</p>
         </div>
         <div className="sm:flex sm:space-x-4 mb-6">

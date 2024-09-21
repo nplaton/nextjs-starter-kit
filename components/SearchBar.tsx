@@ -7,18 +7,22 @@ import { Search, MapPin, Calendar as CalendarIcon } from 'lucide-react'
 import { LoadScript, Autocomplete } from '@react-google-maps/api'
 
 interface SearchBarProps {
-  onSearch: (searchTerm: string, date: Date | undefined) => void;
+  onSearch: (location: string, date: Date | undefined) => void;
+  initialLocation?: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, initialLocation = '' }) => {
   const [date, setDate] = useState<Date | undefined>(new Date())
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState(initialLocation)
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
+  const [location, setLocation] = useState(initialLocation)
 
   useEffect(() => {
     console.log('SearchBar mounted')
     console.log('API Key:', process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY)
-  }, [])
+    setLocation(initialLocation)
+    setSearchTerm(initialLocation)
+  }, [initialLocation])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
