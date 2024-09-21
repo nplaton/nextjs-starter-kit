@@ -1,23 +1,16 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { motion } from 'framer-motion'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { Search, MapPin, Calendar as CalendarIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import SearchBar from './SearchBar'
 
 const Hero: React.FC = () => {
-  const [date, setDate] = useState<Date | undefined>(new Date())
-  const [location, setLocation] = useState('')
   const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSearch = (searchTerm: string, date: Date | undefined) => {
     const searchParams = new URLSearchParams({
-      location: location,
+      location: searchTerm,
       date: date ? date.toISOString() : ''
     })
     router.push(`/search-results?${searchParams.toString()}`)
@@ -38,40 +31,9 @@ const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="bg-white/80 backdrop-blur-md rounded-full p-2 max-w-4xl mx-auto"
+          className="bg-white/80 backdrop-blur-md rounded-full max-w-4xl mx-auto"
         >
-          <form onSubmit={handleSubmit} className="flex items-center">
-            <div className="flex-grow flex items-center space-x-4">
-              <div className="relative flex-grow">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <Input 
-                  placeholder="Where do you need storage?" 
-                  className="pl-10 py-6 rounded-full bg-transparent border-none" 
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                />
-              </div>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="ghost" className="rounded-full">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? date.toLocaleDateString() : "Move-in date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <Button type="submit" size="icon" className="rounded-full w-12 h-12 bg-primary hover:bg-primary/90">
-              <Search className="h-5 w-5 text-white" />
-            </Button>
-          </form>
+          <SearchBar onSearch={handleSearch} />
         </motion.div>
       </div>
     </section>
