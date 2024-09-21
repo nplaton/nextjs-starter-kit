@@ -86,14 +86,18 @@ const SearchResults: React.FC = () => {
   }, [searchParams])
 
   useEffect(() => {
-    if (mapRef.current && !map && typeof google !== 'undefined') {
+    if (mapRef.current && !map) {
+      if (typeof google === 'undefined') {
+        console.error('Google Maps API not loaded');
+        return;
+      }
       const newMap = new google.maps.Map(mapRef.current, {
-        center: { lat: 40.7128, lng: -74.0060 },
-        zoom: 10,
-      })
-      setMap(newMap)
+        center: { lat: 40.4168, lng: -3.7038 }, // Centered on Madrid
+        zoom: 6,
+      });
+      setMap(newMap);
     }
-  }, [mapRef, map])
+  }, [mapRef, map]);
 
   useEffect(() => {
     if (map && typeof google !== 'undefined') {
@@ -130,7 +134,7 @@ const SearchResults: React.FC = () => {
             </div>
           </div>
           <div className="w-1/2 pl-4">
-            <div ref={mapRef} style={{ width: '100%', height: '600px' }}></div>
+            <div ref={mapRef} style={{ width: '100%', height: '600px', border: '1px solid #ccc' }}></div>
           </div>
         </div>
       </main>
