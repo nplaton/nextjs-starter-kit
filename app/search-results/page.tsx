@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import SearchBar from '@/components/SearchBar'
+import SearchBar from '@/components/SearchBar'  // Import SearchBar normally
 import FacilityCard from '@/components/FacilityCard'
 import { Facility } from '@/types'
 import Map from '@/components/Map' // Added import for the map component
@@ -23,6 +23,7 @@ const SearchResults: React.FC = () => {
     maxSize: 50,
   });
   const [isMapLoaded, setIsMapLoaded] = useState(false)
+  const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false)
 
   // Add this line to get the location from search params
   const initialLocation = searchParams.get('location') || ''
@@ -104,6 +105,7 @@ const SearchResults: React.FC = () => {
     })
 
     loader.load().then(() => {
+      setGoogleMapsLoaded(true)
       setIsMapLoaded(true)
     }).catch(e => {
       console.error('Error loading Google Maps API:', e)
@@ -111,17 +113,17 @@ const SearchResults: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    if (mapRef.current && !map && isMapLoaded) {
+    if (mapRef.current && !map && isMapLoaded && googleMapsLoaded) {
       const newMap = new google.maps.Map(mapRef.current, {
         center: { lat: 40.4168, lng: -3.7038 }, // Centered on Madrid
         zoom: 6,
       })
       setMap(newMap)
     }
-  }, [mapRef, map, isMapLoaded])
+  }, [mapRef, map, isMapLoaded, googleMapsLoaded])
 
   useEffect(() => {
-    if (map && typeof google !== 'undefined') {
+    if (map && googleMapsLoaded && facilities.length > 0) {
       facilities.forEach((facility) => {
         const minPrice = Math.min(...facility.units.map(unit => unit.price));
         
@@ -141,7 +143,7 @@ const SearchResults: React.FC = () => {
           },
           label: {
             text: `€${minPrice}`,
-            color: '#000000', // Kept as black
+            color: '#000000',
             fontSize: '12px',
             fontWeight: 'bold',
             className: 'marker-label'
@@ -158,12 +160,12 @@ const SearchResults: React.FC = () => {
           `
         });
 
-        (marker as google.maps.Marker).addListener('click', () => {
-          (infoWindow as google.maps.InfoWindow).open(map, marker as google.maps.Marker);
+        marker.addListener('click', () => {
+          infoWindow.open(map, marker);
         });
       });
     }
-  }, [map, facilities])
+  }, [map, facilities, googleMapsLoaded])
 
   const handleSearch = (searchTerm: string, date: Date | undefined) => {
     // Implement search functionality here
@@ -192,7 +194,6 @@ const SearchResults: React.FC = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8 mt-20">
-        {/* Removed h1 element */}
         <div className="mb-8">
           <SearchBar onSearch={handleSearch} initialLocation={initialLocation} />
           <p className="text-sm text-gray-600 mt-2 text-center">Over 1000 stores in Spain</p>
@@ -209,7 +210,7 @@ const SearchResults: React.FC = () => {
             </div>
           </div>
           <div className="w-full md:w-1/2 md:pl-4">
-            {isMapLoaded ? (
+            {isMapLoaded && googleMapsLoaded ? (
               <div ref={mapRef} className="w-full h-[600px] border border-gray-300 rounded-lg"></div>
             ) : (
               <div className="w-full h-[600px] border border-gray-300 rounded-lg flex items-center justify-center">
