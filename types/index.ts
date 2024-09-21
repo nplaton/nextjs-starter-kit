@@ -21,3 +21,19 @@ export interface Facility {
   lng: number;
   units: StorageUnit[];
 }
+
+// Define your types here
+export interface Location {
+  id: string;
+  name: string;
+  // Add other properties as needed
+}
+
+export interface Unit {
+  id: string;
+  size: string;
+  price: number;
+  // Add other properties as needed
+}
+
+// Add more types as needed

@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Star, MapPin } from 'lucide-react'
 import { Facility } from '@/types'
 import Image from 'next/image'
+import Link from 'next/link'
 
 interface FacilityCardProps {
   facility: Facility;
@@ -75,7 +76,9 @@ const FacilityCard: React.FC<FacilityCardProps> = ({ facility, index }) => {
                   <span className="text-2xl font-bold">${facility.units[0].price}</span>
                   <span className="text-sm text-gray-600">/month</span>
                 </div>
-                <Button className="bg-blue-600 hover:bg-blue-700">View Details</Button>
+                <Link href={`/location/${facility.id}`} passHref>
+                  <Button as="a" className="w-full">View Details</Button>
+                </Link>
               </div>
             </div>
           </div>
