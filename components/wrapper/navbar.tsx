@@ -1,12 +1,13 @@
 "use client"
 import Link from 'next/link';
 import * as React from "react";
+import { useState, useEffect } from 'react';
 import { GiHamburgerMenu } from "react-icons/gi";
 import { Button } from "../ui/button";
 import { SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "../ui/sheet";
 import { UserProfile } from "../user-profile";
 import ModeToggle from "../mode-toggle";
-import { BlocksIcon } from "lucide-react";
+import { BlocksIcon, Menu } from "lucide-react";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import config from "@/config";
 import { cn } from "@/lib/utils";
@@ -15,100 +16,136 @@ import { Dialog, DialogClose } from "@radix-ui/react-dialog";
 
 const components: { title: string; href: string; description: string }[] = [
     {
-        title: "Marketing Page",
-        href: "/marketing-page",
-        description: "Write some wavy here to get them to click.",
+        title: "List Your Facility",
+        href: "/list-facility",
+        description: "Add your storage facility to our platform.",
     },
     {
-        title: "Marketing Page",
-        href: "/marketing-page",
-        description: "Write some wavy here to get them to click.",
+        title: "How It Works",
+        href: "/how-it-works",
+        description: "Learn about our booking process and services.",
     },
     {
-        title: "Marketing Page",
-        href: "/marketing-page",
-        description: "Write some wavy here to get them to click.",
+        title: "Dashboard",
+        href: "/dashboard",
+        description: "Access your account dashboard.",
     },
 ];
 
-export default function NavBar() {
+export default function Navbar() {
+    const [isScrolled, setIsScrolled] = useState(false);
     let userId = null;
     if (config?.auth?.enabled) {
         const { userId: clerkUserId } = useAuth();
         userId = clerkUserId;
     }
 
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 50);
+        }
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     return (
-        <div className="flex min-w-full fixed justify-between p-2 border-b z-10 dark:bg-black dark:bg-opacity-50 bg-white">
-            <div className="flex justify-between w-full min-[825px]:hidden">
-                <Dialog>
-                    <SheetTrigger className="p-2 transition">
-                        <Button size="icon" variant="ghost" className="w-4 h-4" aria-label="Open menu" asChild>
-                            <GiHamburgerMenu />
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left">
-                        <SheetHeader>
-                            <SheetTitle>Next Starter</SheetTitle>
-                        </SheetHeader>
-                        <div className="flex flex-col space-y-3 mt-[1rem]">
-                            <DialogClose asChild>
-                                <Link href="/">
-                                    <Button variant="outline" className="w-full">Home</Button>
-                                </Link>
-                            </DialogClose>
-                            <DialogClose asChild>
-                                <Link href="/dashboard" legacyBehavior passHref className="cursor-pointer">
-                                    <Button variant="outline">
-                                        Dashboard
-                                    </Button>
-                                </Link>
-                            </DialogClose>
-                        </div>
-                    </SheetContent>
-                </Dialog>
-                <ModeToggle />
-            </div>
-            <NavigationMenu>
-                <NavigationMenuList className="max-[825px]:hidden flex gap-3 w-[100%] justify-between">
-                    <Link href="/" className="pl-2 flex items-center" aria-label="Home">
-                        <BlocksIcon aria-hidden="true" />
-                        <span className="sr-only">Home</span>
+        <header className={`fixed w-full z-10 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md dark:bg-black dark:bg-opacity-50' : 'bg-transparent'}`}>
+            <div className="container mx-auto px-4 py-4">
+                <div className="flex items-center justify-between">
+                    <Link href="/" className="text-2xl font-bold text-primary flex items-center">
+                        <BlocksIcon className="mr-2" aria-hidden="true" />
+                        LookLockers
                     </Link>
-                </NavigationMenuList>
-                <NavigationMenuList>
-                    <NavigationMenuItem className="max-[825px]:hidden ml-5">
-                        <NavigationMenuTrigger className="dark:bg-black dark:bg-opacity-50">
-                            Features
-                        </NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                            <ul className="flex flex-col w-[400px] gap-3 p-4 lg:w-[500px]">
-                                {components.map((component) => (
-                                    <ListItem
-                                        key={component.title}
-                                        title={component.title}
-                                        href={component.href}
-                                    >
-                                        {component.description}
-                                    </ListItem>
-                                ))}
-                            </ul>
-                        </NavigationMenuContent>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem className="max-[825px]:hidden">
-                        <Link href="/dashboard" legacyBehavior passHref>
-                            <Button variant="ghost">
-                                Dashboard
-                            </Button>
-                        </Link>
-                    </NavigationMenuItem>
-                </NavigationMenuList>
-            </NavigationMenu>
-            <div className="flex items-center gap-2 max-[825px]:hidden">
-                {userId && <UserProfile />}
-                <ModeToggle />
+                    <nav className="hidden md:flex space-x-8">
+                        <NavigationMenu>
+                            <NavigationMenuList>
+                                <NavigationMenuItem>
+                                    <NavigationMenuTrigger>Features</NavigationMenuTrigger>
+                                    <NavigationMenuContent>
+                                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                                            {components.map((component) => (
+                                                <ListItem
+                                                    key={component.title}
+                                                    title={component.title}
+                                                    href={component.href}
+                                                >
+                                                    {component.description}
+                                                </ListItem>
+                                            ))}
+                                        </ul>
+                                    </NavigationMenuContent>
+                                </NavigationMenuItem>
+                                <NavigationMenuItem>
+                                    <Link href="/list-facility" legacyBehavior passHref>
+                                        <NavigationMenuLink className="text-sm font-medium hover:text-primary transition-colors">
+                                            List Your Facility
+                                        </NavigationMenuLink>
+                                    </Link>
+                                </NavigationMenuItem>
+                                <NavigationMenuItem>
+                                    <Link href="/how-it-works" legacyBehavior passHref>
+                                        <NavigationMenuLink className="text-sm font-medium hover:text-primary transition-colors">
+                                            How It Works
+                                        </NavigationMenuLink>
+                                    </Link>
+                                </NavigationMenuItem>
+                                {userId ? (
+                                    <NavigationMenuItem>
+                                        <Link href="/dashboard" legacyBehavior passHref>
+                                            <NavigationMenuLink className="text-sm font-medium hover:text-primary transition-colors">
+                                                Dashboard
+                                            </NavigationMenuLink>
+                                        </Link>
+                                    </NavigationMenuItem>
+                                ) : (
+                                    <NavigationMenuItem>
+                                        <Link href="/login" legacyBehavior passHref>
+                                            <NavigationMenuLink className="text-sm font-medium hover:text-primary transition-colors">
+                                                Log in
+                                            </NavigationMenuLink>
+                                        </Link>
+                                    </NavigationMenuItem>
+                                )}
+                            </NavigationMenuList>
+                        </NavigationMenu>
+                    </nav>
+                    <div className="flex items-center space-x-4">
+                        {userId && <UserProfile />}
+                        <ModeToggle />
+                        <Dialog>
+                            <SheetTrigger className="md:hidden">
+                                <Button variant="ghost" size="icon" aria-label="Open menu">
+                                    <Menu className="h-6 w-6" />
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="right">
+                                <SheetHeader>
+                                    <SheetTitle>Menu</SheetTitle>
+                                </SheetHeader>
+                                <div className="flex flex-col space-y-4 mt-4">
+                                    {components.map((component) => (
+                                        <DialogClose key={component.title} asChild>
+                                            <Link href={component.href}>
+                                                <Button variant="ghost" className="w-full justify-start">
+                                                    {component.title}
+                                                </Button>
+                                            </Link>
+                                        </DialogClose>
+                                    ))}
+                                    {!userId && (
+                                        <DialogClose asChild>
+                                            <Link href="/login">
+                                                <Button variant="outline" className="w-full">Log in</Button>
+                                            </Link>
+                                        </DialogClose>
+                                    )}
+                                </div>
+                            </SheetContent>
+                        </Dialog>
+                    </div>
+                </div>
             </div>
-        </div>
+        </header>
     );
 }
 
