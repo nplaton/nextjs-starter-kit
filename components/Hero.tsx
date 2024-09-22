@@ -1,31 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import SearchBar from './SearchBar'
 
 const Hero: React.FC = () => {
   const router = useRouter()
-  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false)
-
-  useEffect(() => {
-    if (window.google) {
-      setIsGoogleLoaded(true)
-    } else {
-      const timer = setInterval(() => {
-        if (window.google) {
-          setIsGoogleLoaded(true)
-          clearInterval(timer)
-        }
-      }, 100)
-      return () => clearInterval(timer)
-    }
-  }, [])
-
-  if (!isGoogleLoaded) {
-    return <div>Loading map...</div>
-  }
 
   const handleSearch = (searchTerm: string, date: Date | undefined) => {
     const searchParams = new URLSearchParams({

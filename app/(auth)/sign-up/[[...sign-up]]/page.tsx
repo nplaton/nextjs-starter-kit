@@ -1,15 +1,21 @@
 "use client"
+import PageWrapper from "@/components/wrapper/page-wrapper";
+import config from "@/config";
 import { SignUp } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
+    const router = useRouter()
+
+    if (!config?.auth?.enabled) {
+        router.back()
+    }
+
     return (
-        <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
-            <SignUp appearance={{
-                elements: {
-                    rootBox: "bg-white/80 backdrop-blur-md p-8 rounded-lg shadow-lg",
-                    card: "bg-transparent shadow-none",
-                }
-            }} />
-        </div>
+        <PageWrapper >
+            <div className="flex min-w-screen justify-center my-[5rem]">
+                <SignUp />
+            </div>
+        </PageWrapper>
     );
 }
