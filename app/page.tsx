@@ -4,10 +4,12 @@ import PopularStorageTypes from '@/components/PopularStorageTypes'
 import WhyChooseUs from '@/components/WhyChooseUs'
 import Testimonials from '@/components/Testimonials'
 import Footer from '@/components/Footer'
+import GoogleMapsScript from '@/components/GoogleMapsScript'
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <>
+      <GoogleMapsScript />
       <Header />
       <main className="flex-grow">
         <Hero />
@@ -16,6 +18,6 @@ export default function Home() {
         <Testimonials />
       </main>
       <Footer />
-    </div>
+    </>
   )
 }
