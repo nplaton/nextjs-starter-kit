@@ -1,14 +1,16 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { Button } from "@/components/ui/button"
-import { Menu } from 'lucide-react'
+import dynamic from 'next/dynamic'
+
+const DynamicNavbar = dynamic(() => import('@/components/wrapper/navbar'), { ssr: false })
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
+    setIsMounted(true)
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
     }
@@ -16,23 +18,13 @@ const Header: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  if (!isMounted) {
+    return null // or a loading placeholder
+  }
+
   return (
-    <header className={`fixed w-full z-10 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-transparent'}`}>
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-primary">
-            LookLockers
-          </Link>
-          <nav className="hidden md:flex space-x-8">
-            <Link href="/list-facility" className="text-sm font-medium hover:text-primary transition-colors">List Your Facility</Link>
-            <Link href="/how-it-works" className="text-sm font-medium hover:text-primary transition-colors">How It Works</Link>
-            <Link href="/login" className="text-sm font-medium hover:text-primary transition-colors">Log in</Link>
-          </nav>
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Menu className="h-6 w-6" />
-          </Button>
-        </div>
-      </div>
+    <header className={`fixed w-full z-10 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md dark:bg-black dark:bg-opacity-50' : 'bg-transparent'}`}>
+      <DynamicNavbar isScrolled={isScrolled} />
     </header>
   )
 }
