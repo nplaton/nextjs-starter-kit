@@ -9,6 +9,8 @@ import { useUser } from "@clerk/nextjs";
 import { Dialog, DialogClose } from "@radix-ui/react-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useClerk } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 interface NavbarProps {
     isScrolled: boolean;
@@ -17,6 +19,8 @@ interface NavbarProps {
 export default function Navbar({ isScrolled }: NavbarProps) {
     const [isClient, setIsClient] = useState(false)
     const { isSignedIn, user } = useUser();
+    const { signOut } = useClerk();
+    const router = useRouter();
 
     useEffect(() => {
         setIsClient(true)
@@ -25,6 +29,11 @@ export default function Navbar({ isScrolled }: NavbarProps) {
     if (!isClient) {
         return null // or a loading placeholder
     }
+
+    const handleSignOut = async () => {
+        await signOut();
+        router.push('/'); // Redirect to home page after sign out
+    };
 
     return (
         <div className="container mx-auto px-4 py-4">
@@ -68,7 +77,7 @@ export default function Navbar({ isScrolled }: NavbarProps) {
                                         <Button variant="ghost" className="w-full justify-start" asChild>
                                             <Link href="/settings">Settings</Link>
                                         </Button>
-                                        <Button variant="ghost" className="w-full justify-start" onClick={() => {/* Add sign out logic */}}>
+                                        <Button variant="ghost" className="w-full justify-start" onClick={handleSignOut}>
                                             Sign out
                                         </Button>
                                     </div>
@@ -77,8 +86,8 @@ export default function Navbar({ isScrolled }: NavbarProps) {
                         </Popover>
                     ) : (
                         <Button variant="outline" asChild>
-                            <Link href="/log-in">
-                                <User className="mr-2 h-4 w-4" /> Log in
+                            <Link href="/sign-in">
+                                <User className="mr-2 h-4 w-4" /> Sign in
                             </Link>
                         </Button>
                     )}
@@ -102,9 +111,9 @@ export default function Navbar({ isScrolled }: NavbarProps) {
                                 </DialogClose>
                                 {!isSignedIn && (
                                     <DialogClose asChild>
-                                        <Link href="/log-in">
+                                        <Link href="/sign-in">
                                             <Button variant="outline" className="w-full">
-                                                <User className="mr-2 h-4 w-4" /> Log in
+                                                <User className="mr-2 h-4 w-4" /> Sign in
                                             </Button>
                                         </Link>
                                     </DialogClose>

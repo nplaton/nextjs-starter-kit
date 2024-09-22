@@ -4,7 +4,7 @@ import config from "@/config";
 import { UserProfile } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
-const UserProfilePage = () => {
+export default function UserProfilePage() {
     const router = useRouter()
 
     if (!config?.auth?.enabled) {
@@ -18,6 +18,3 @@ const UserProfilePage = () => {
         </PageWrapper>
     )
 }
-
-
-export default UserProfilePage;
