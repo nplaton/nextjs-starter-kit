@@ -3,7 +3,6 @@ import Hero from '@/components/Hero'
 import PopularStorageTypes from '@/components/PopularStorageTypes'
 import WhyChooseUs from '@/components/WhyChooseUs'
 import Testimonials from '@/components/Testimonials'
-import Footer from '@/components/Footer'
 
 export default function Home() {
   return (
@@ -15,7 +14,6 @@ export default function Home() {
         <WhyChooseUs />
         <Testimonials />
       </main>
-      <Footer />
     </div>
   )
 }

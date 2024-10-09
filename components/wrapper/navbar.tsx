@@ -72,7 +72,7 @@ export default function Navbar({ isScrolled }: NavbarProps) {
                                     </div>
                                     <div className="grid gap-2">
                                         <Button variant="ghost" className="w-full justify-start" asChild>
-                                            <Link href="/profile">Profile</Link>
+                                            <Link href="/user-profile">Profile</Link>
                                         </Button>
                                         <Button variant="ghost" className="w-full justify-start" asChild>
                                             <Link href="/settings">Settings</Link>

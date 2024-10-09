@@ -10,6 +10,12 @@ const DynamicHeader = dynamic(() => import('@/components/Header'), {
   loading: () => <div>Loading...</div> // Optional loading component
 })
 
+const DynamicFooter = dynamic(() => import('@/components/Footer'), {
+  ssr: false,
+  loading: () => <div>Loading footer...</div>
+})
+
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -32,7 +38,7 @@ export default function RootLayout({
           />
           <DynamicHeader />
           <main>{children}</main>
-          {/* Footer component if you have one */}
+          <DynamicFooter />
         </body>
       </html>
     </ClerkProvider>

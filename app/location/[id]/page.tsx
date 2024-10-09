@@ -1,7 +1,5 @@
 import { Location } from '@/types';
 import LocationDetails from '@/components/LocationDetails';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 
 // This would typically come from an API or database
 const getLocationData = (id: string): Location => {
@@ -40,13 +38,11 @@ export default function LocationPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-grow mt-16 md:mt-24"> {/* Added margin-top here */}
         <div className="container mx-auto px-4 py-12"> {/* Increased padding-y */}
           <LocationDetails location={location} />
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

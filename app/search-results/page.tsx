@@ -3,11 +3,9 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Header from '@/components/Header'
-import Footer from '@/components/Footer'
 import SearchBar from '@/components/SearchBar'  // Import SearchBar normally
 import FacilityCard from '@/components/FacilityCard'
 import { Facility } from '@/types'
-import Map from '@/components/Map' // Added import for the map component
 import FilterComponent from '@/components/FilterComponent' // Add this import
 import { Loader } from '@googlemaps/js-api-loader' // Add this import
 
@@ -220,7 +218,6 @@ const SearchResults: React.FC = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   )
 }
