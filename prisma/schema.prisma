@@ -1,73 +1,176 @@
+// schema.prisma
+
+datasource db {
+  provider = "postgresql" // Replace with your preferred database
+  url      = env("DATABASE_URL")
+}
+
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+enum Role {
+  CUSTOMER
+  HOST
+  ADMIN
 }
 
-model user {
-  id                Int      @id @default(autoincrement())
-  created_time      DateTime @default(now())
-  email             String   @unique
-  first_name        String?
-  last_name         String?
-  gender            String?
-  profile_image_url String?
-  user_id           String   @unique
-  subscription      String?
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
 }
 
-model payments {
-  id               Int      @id @default(autoincrement())
-  created_time     DateTime @default(now())
-  stripe_id        String
-  email            String
-  amount           String
-  payment_time     String
-  payment_date     String
-  currency         String
-  user_id          String
-  customer_details String
-  payment_intent   String
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  CAPTURED
+  CANCELLED
 }
 
-model subscriptions {
-  id                        Int      @id @default(autoincrement())
-  created_time              DateTime @default(now())
-  subscription_id           String
-  stripe_user_id            String
-  status                    String
-  start_date                String
-  end_date                  String?
-  plan_id                   String
-  default_payment_method_id String?
-  email                     String
-  user_id                   String
+model User {
+  id        Int           @id @default(autoincrement())
+  email     String        @unique
+  password  String
+  name      String
+  phone     String?
+  role      Role          @default(CUSTOMER)
+  listings  BaseListing[] @relation("HostListings")
+  bookings  Booking[]     @relation("UserBookings")
+  photos    Photo[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 }
 
-model subscriptions_plans {
-  id           Int      @id @default(autoincrement())
-  created_time DateTime @default(now())
-  plan_id      String
+model BaseListing {
+  id                   Int                     @id @default(autoincrement())
+  title                String
+  description          String?
+  host                 User?                   @relation("HostListings", fields: [hostId], references: [id])
+  hostId               Int?
+  // Add address fields directly to BaseListing
+  street               String
+  city                 String
+  state                String
+  zipCode              String
+  country              String
+  countryCode          String?
+  plusCode             String?
+  latitude             Float?
+  longitude            Float?
+  photos               Photo[]
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime?               @updatedAt
+  photoUrl             String
+  source               String?
+  // Relations to specific listing types
+  UnregisteredFacility UnregisteredFacility?
+  RegisteredFacility   RegisteredFacility?
+  PeerToPeerFacility   PeerToPeerFacility?
+
+  // Relation to categories (optional)
+  categories           Category[]              @relation("ListingCategories")
+}
+
+model UnregisteredFacility {
+  id                      Int                  @id @default(autoincrement())
+  baseListing             BaseListing          @relation(fields: [baseListingId], references: [id])
+  baseListingId           Int                  @unique
+  website                 String?
+  phone                   String?
+  placeId                 String?
+  url                     String?
+  temporarilyClosed       Boolean?             @default(false)
+  permanentlyClosed       Boolean?             @default(false)
+  rank                    Int?
+  reviewsCount            Int?
+  totalScore              Float?
+  wheelChairAccessibility Json?
+  openingHours            Json?
+  categories              Json?
+
+  // Relation to opening hours (optional)
+  openingHourEntries      OpeningHour[]
+}
+
+model RegisteredFacility {
+  id            Int           @id @default(autoincrement())
+  baseListing   BaseListing   @relation(fields: [baseListingId], references: [id])
+  baseListingId Int           @unique
+  units         ListingUnit[]
+}
+
+model PeerToPeerFacility {
+  id             Int           @id @default(autoincrement())
+  baseListing    BaseListing   @relation(fields: [baseListingId], references: [id])
+  baseListingId  Int           @unique
+  units          ListingUnit[]
+  additionalInfo Json?
+}
+
+model ListingUnit {
+  id                   Int                  @id @default(autoincrement())
+  size                 String
+  price                Float
+  available            Boolean              @default(true)
+  bookings             Booking[]
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  // Relations to specific facility types
+  registeredFacility   RegisteredFacility?  @relation(fields: [registeredFacilityId], references: [id])
+  registeredFacilityId Int?
+
+  peerToPeerFacility   PeerToPeerFacility?  @relation(fields: [peerToPeerFacilityId], references: [id])
+  peerToPeerFacilityId Int?
+}
+
+model Booking {
+  id         Int           @id @default(autoincrement())
+  user       User          @relation("UserBookings", fields: [userId], references: [id])
+  userId     Int
+  unit       ListingUnit   @relation(fields: [unitId], references: [id])
+  unitId     Int
+  startDate  DateTime
+  endDate    DateTime
+  status     BookingStatus @default(PENDING)
+  payment    Payment?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+}
+
+model Payment {
+  id              Int           @id @default(autoincrement())
+  amount          Float
+  status          PaymentStatus @default(PENDING)
+  bookingId       Int           @unique
+  booking         Booking       @relation(fields: [bookingId], references: [id])
+  stripePaymentId String?       // Reference to Stripe payment intent
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Category {
+  id           Int           @id @default(autoincrement())
   name         String
-  description  String
-  amount       String
-  currency     String
-  interval     String
+  baseListings BaseListing[] @relation("ListingCategories")
 }
 
-model invoices {
-  id              Int      @id @default(autoincrement())
-  created_time    DateTime @default(now())
-  invoice_id      String
-  subscription_id String
-  amount_paid     String
-  amount_due      String
-  currency        String
-  status          String
-  email           String
-  user_id         String?
+model OpeningHour {
+  id                     Int                     @id @default(autoincrement())
+  day                    String
+  hours                  String
+  unregisteredFacility   UnregisteredFacility    @relation(fields: [unregisteredFacilityId], references: [id])
+  unregisteredFacilityId Int
+}
+
+model Photo {
+  id            Int          @id @default(autoincrement())
+  url           String
+  category      String?
+  baseListing   BaseListing? @relation(fields: [baseListingId], references: [id])
+  baseListingId Int?
+  user          User?        @relation(fields: [userId], references: [id])
+  userId        Int?
+  createdAt     DateTime     @default(now())
 }
