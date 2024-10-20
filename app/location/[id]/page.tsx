@@ -1,5 +1,5 @@
 import { Location } from '@/types';
-import LocationDetails from '@/components/LocationDetails';
+import LocationDetails from '@/app/location/_components/LocationDetails';
 
 // This would typically come from an API or database
 const getLocationData = (id: string): Location => {

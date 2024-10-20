@@ -1,8 +1,8 @@
 import Header from '@/components/Header'
 import Hero from '@/components/Hero'
-import PopularStorageTypes from '@/components/PopularStorageTypes'
-import WhyChooseUs from '@/components/WhyChooseUs'
-import Testimonials from '@/components/Testimonials'
+import PopularStorageTypes from '@/app/(marketing)/_components/PopularStorageTypes'
+import WhyChooseUs from '@/app/(marketing)/_components/WhyChooseUs'
+import Testimonials from '@/app/(marketing)/_components/Testimonials'
 
 export default function Home() {
   return (
