@@ -94,14 +94,10 @@ const SearchResults: React.FC = () => {
         const infoWindow = new google.maps.InfoWindow({
           content: `
             <div style="padding: 10px; max-width: 200px;">
-              <h3 style="font-weight: bold; margin-bottom: 5px;">${facility.name}</h3>
+              <h3 style="font-weight: bold; margin-bottom: 5px;">${facility.title}</h3>
               <p style="font-size: 12px; margin-bottom: 5px;">${facility.address}</p>
             </div>
           `
-        });
-
-        marker.addListener('click', () => {
-          infoWindow.open(map, marker);
         });
       });
     }
