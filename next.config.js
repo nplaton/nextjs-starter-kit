@@ -1,32 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
   images: {
-    remotePatterns: [{
-      protocol: 'https',
-      hostname: 'images.unsplash.com',
-      port: '',
-      pathname: '/**'
-    }, {
-      protocol: 'https',
-      hostname: 'seo-heist.s3.amazonaws.com',
-      port: '',
-      pathname: '/**'
-    }, {
-      protocol: 'https',
-      hostname: 'github.com',
-      port: '',
-      pathname: '/**'
-    }, {
-      protocol: 'https',
-      hostname: 'ansubkhan.com',
-      port: '',
-      pathname: '/**'
-    }, {
-      protocol: 'https',
-      hostname: 'utfs.io',
-      port: '',
-      pathname: '/**'
-    }]
-  }
+    remotePatterns: [
+      {
+        hostname: 'lh5.googleusercontent.com',
+        protocol: "https",
+        port: ""
+      }, 
+      {
+        hostname: 'streetviewpixels-pa.googleapis.com',
+        protocol: "https",
+        port: ""
+      }, 
+    ]
+  },
 };
+
 module.exports = nextConfig;
