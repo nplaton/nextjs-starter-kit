@@ -3,98 +3,50 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Header from '@/components/Header'
-import SearchBar from '@/components/SearchBar'  // Import SearchBar normally
-import FacilityCard from '@/components/FacilityCard'
-import { Facility } from '@/types'
-import FilterComponent from '@/components/FilterComponent' // Add this import
-import { Loader } from '@googlemaps/js-api-loader' // Add this import
+import SearchBar from '@/components/SearchBar'
+import UnregisteredFacilityCard from '@/app/search-results/_components/UnregisteredFacilityCard'
+import { Loader } from '@googlemaps/js-api-loader'
+import Image from 'next/image'
 
 const SearchResults: React.FC = () => {
   const searchParams = useSearchParams()
-  const [facilities, setFacilities] = useState<Facility[]>([])
+  const [facilities, setFacilities] = useState<Array<{ title: string; rating: number | null; latitude: number; longitude: number; address: string; photoUrl: string }>>([])
   const mapRef = useRef<HTMLDivElement>(null)
   const [map, setMap] = useState<google.maps.Map | null>(null)
-  const [filters, setFilters] = useState({
-    minPrice: 0,
-    maxPrice: 150,
-    minSize: 0,
-    maxSize: 50,
-  });
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false)
 
-  // Add this line to get the location from search params
-  const initialLocation = searchParams.get('location') || ''
+  const initialLocation = searchParams?.get('location') || ''
 
   useEffect(() => {
-    const location = searchParams.get('location')
-    const date = searchParams.get('date')
-    
-    // Updated dummy data with Spanish locations
-    setFacilities([
-      {
-        id: '1',
-        name: 'Trasteros Plus Madrid',
-        address: 'Calle de Alcalá 123, ' + (location || 'Madrid'),
-        rating: 4.7,
-        lat: 40.4168,
-        lng: -3.7038,
-        units: [
-          { size: '5x5', price: 50, available: 3 },
-          { size: '10x10', price: 100, available: 2 },
-          { size: '10x15', price: 150, available: 1 },
-        ]
-      },
-      {
-        id: '2',
-        name: 'Guardamuebles Barcelona',
-        address: 'Avinguda Diagonal 456, ' + (location || 'Barcelona'),
-        rating: 4.5,
-        lat: 41.3851,
-        lng: 2.1734,
-        units: [
-          { size: '5x10', price: 75, available: 2 },
-          { size: '15x20', price: 200, available: 1 },
-        ]
-      },
-      {
-        id: '3',
-        name: 'Almacenaje Seguro Valencia',
-        address: 'Carrer de Colón 789, ' + (location || 'Valencia'),
-        rating: 4.3,
-        lat: 39.4699,
-        lng: -0.3763,
-        units: [
-          { size: '8x8', price: 80, available: 4 },
-          { size: '12x12', price: 120, available: 2 },
-        ]
-      },
-      {
-        id: '4',
-        name: 'Espacio Extra Sevilla',
-        address: 'Avenida de la Constitución 101, ' + (location || 'Sevilla'),
-        rating: 4.6,
-        lat: 37.3891,
-        lng: -5.9845,
-        units: [
-          { size: '6x6', price: 60, available: 5 },
-          { size: '10x12', price: 110, available: 3 },
-        ]
-      },
-      {
-        id: '5',
-        name: 'Trasteros Económicos Málaga',
-        address: 'Paseo del Parque 202, ' + (location || 'Mlaga'),
-        rating: 4.2,
-        lat: 36.7213,
-        lng: -4.4214,
-        units: [
-          { size: '4x4', price: 40, available: 6 },
-          { size: '8x10', price: 90, available: 2 },
-        ]
-      },
-    ])
-  }, [searchParams])
+    const fetchFacilities = async () => {
+      try {
+        const response = await fetch('/api/facilities')
+        if (!response.ok) {
+          throw new Error('Failed to fetch facilities')
+        }
+        const data = await response.json()
+        
+        // Add logger here
+        // console.log('Fetched facilities data:', JSON.stringify(data, null, 2))
+        
+        const transformedData = data.map((facility: any) => ({
+          title: facility.title,
+          rating: typeof facility.rating === 'number' ? facility.rating : null,
+          latitude: facility.latitude,
+          longitude: facility.longitude,
+          address: facility.address,
+          photoUrl: facility.photoUrl || '' // Add default value if photoUrl is not present
+        }))
+        setFacilities(transformedData)
+      } catch (error) {
+        console.error('Error fetching facilities:', error)
+        // Handle error (e.g., show error message to user)
+      }
+    }
+
+    fetchFacilities()
+  }, [])
 
   useEffect(() => {
     const loader = new Loader({
@@ -122,13 +74,11 @@ const SearchResults: React.FC = () => {
 
   useEffect(() => {
     if (map && googleMapsLoaded && facilities.length > 0) {
-      facilities.forEach((facility) => {
-        const minPrice = Math.min(...facility.units.map(unit => unit.price));
-        
+      facilities.forEach((facility) => {        
         const packageEmoji = '📦'; // Unicode for package emoji
         
         const marker = new google.maps.Marker({
-          position: { lat: facility.lat, lng: facility.lng },
+          position: { lat: facility.latitude, lng: facility.longitude },
           map: map,
           icon: {
             url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
@@ -138,13 +88,6 @@ const SearchResults: React.FC = () => {
             `)}`,
             scaledSize: new google.maps.Size(40, 40),
             anchor: new google.maps.Point(20, 20),
-          },
-          label: {
-            text: `€${minPrice}`,
-            color: '#000000',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            className: 'marker-label'
           }
         });
 
@@ -153,7 +96,6 @@ const SearchResults: React.FC = () => {
             <div style="padding: 10px; max-width: 200px;">
               <h3 style="font-weight: bold; margin-bottom: 5px;">${facility.name}</h3>
               <p style="font-size: 12px; margin-bottom: 5px;">${facility.address}</p>
-              <p style="font-size: 12px;">From €${minPrice}/month</p>
             </div>
           `
         });
@@ -170,24 +112,6 @@ const SearchResults: React.FC = () => {
     console.log('Searching for:', searchTerm, 'Date:', date)
   }
 
-  const handleFilterChange = (newFilters: typeof filters) => {
-    setFilters(newFilters);
-    // Apply filters to facilities
-    const filteredFacilities = facilities.filter(facility => {
-      return facility.units.some(unit => {
-        const [width, height] = unit.size.split('x').map(Number);
-        const size = width * height;
-        return (
-          unit.price >= newFilters.minPrice &&
-          (newFilters.maxPrice === 150 ? true : unit.price <= newFilters.maxPrice) &&
-          size >= newFilters.minSize &&
-          (newFilters.maxSize === 50 ? true : size <= newFilters.maxSize)
-        );
-      });
-    });
-    setFacilities(filteredFacilities);
-  };
-
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -196,14 +120,17 @@ const SearchResults: React.FC = () => {
           <SearchBar onSearch={handleSearch} initialLocation={initialLocation} />
           <p className="text-sm text-gray-600 mt-2 text-center">Over 1000 stores in Spain</p>
         </div>
-        <div className="sm:flex sm:space-x-4 mb-6">
-          <FilterComponent filters={filters} onFilterChange={handleFilterChange} />
-        </div>
         <div className="flex flex-col md:flex-row mt-8">
           <div className="w-full md:w-1/2 md:pr-4 mb-8 md:mb-0">
             <div className="grid grid-cols-1 gap-6">
               {facilities.map((facility, index) => (
-                <FacilityCard key={facility.id} facility={facility} index={index} />
+                <UnregisteredFacilityCard
+                  key={index}
+                  title={facility.title}
+                  rating={facility.rating}
+                  index={index}
+                  photoUrl={facility.photoUrl}
+                />
               ))}
             </div>
           </div>
@@ -212,7 +139,13 @@ const SearchResults: React.FC = () => {
               <div ref={mapRef} className="w-full h-[600px] border border-gray-300 rounded-lg"></div>
             ) : (
               <div className="w-full h-[600px] border border-gray-300 rounded-lg flex items-center justify-center">
-                Loading map...
+                <Image
+                  src="/images/map-placeholder.jpg"
+                  alt="Map placeholder"
+                  width={600}
+                  height={400}
+                  className="rounded-lg"
+                />
               </div>
             )}
           </div>
